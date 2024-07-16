@@ -27,45 +27,93 @@ $selected_user = isset($_GET['selected_user']) ? $_GET['selected_user'] : null;
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('../img/b1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
 </head>
-<style>
-    body {
-        background-image: url('../img/b1.jpg');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }
-</style>
 
 <body class="min-h-screen flex flex-col">
-    <div class="grid grid-cols-1 lg:grid-cols-4  lg:h-screen overflow-hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-4 lg:h-screen overflow-hidden">
         <section class="col-span-1">
             <?php include('sideuser.php'); ?>
         </section>
 
         <section class="col-span-3 overflow-y-auto pb-20">
             <?php include('navbaruser.php'); ?>
-            <div class="flex flex-col space-y-2 p-4 sm:p-6 md:p-8 lg:p-16 pt-16">
-                <?php
-                include('chats.php');
-                ?>
+            <div class="flex flex-col space-y-2 p-4 sm:p-6 md:p-8 lg:p-16 pt-16" id="chat-container">
+                <?php include('chats.php'); ?>
             </div>
         </section>
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0  lg:ml-[400px] p-4 ">
-        <form action="send.php" method="post" class="max-w-2xl mx-auto">
+    <div class="fixed bottom-0 left-0 right-0 lg:ml-[400px] p-4">
+        <form id="message-form" action="send.php" method="post" class="max-w-2xl mx-auto">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="message">Message:</label>
             <div class="flex items-center">
                 <input class="shadow bg-white text-black appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="message" name="message" type="text" placeholder="Enter message">
-                <input type="hidden" name="recipient" value="<?php echo ($selected_user); ?>">
-                <button class="py-2 ml-2 px-4 flex justify-center items-center bg-purple-600 hover:bg-purple-700 hover:scale-125 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-r">
+                <input type="hidden" name="recipient" value="<?php echo htmlspecialchars($selected_user); ?>">
+                <button type="submit" class="py-2 ml-2 px-4 flex justify-center items-center bg-purple-600 hover:bg-purple-700 hover:scale-125 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-r">
                     <img src="../img/send.png" alt="" class="h-4 w-4">
                 </button>
             </div>
         </form>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Function to fetch messages via AJAX
+            function fetchMessages() {
+                var selected_user = "<?php echo htmlspecialchars($selected_user); ?>";
+
+                $.ajax({
+                    url: 'chats.php',
+                    method: 'GET',
+                    data: {
+                        selected_user: selected_user
+                    },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#chat-container').html(response); // Update chat container
+                        $('#chat-container').scrollTop($('#chat-container')[0].scrollHeight); // Scroll to bottom
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching messages:', error);
+                    }
+                });
+            }
+
+            // Initial fetch of messages
+            fetchMessages();
+
+            // Set interval to periodically fetch messages (every 2 seconds)
+            setInterval(fetchMessages, 2000);
+
+            // Submit message form via AJAX
+            $('#message-form').submit(function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: $(this).attr('method'),
+                    data: $(this).serialize(),
+                    dataType: 'html',
+                    success: function(response) {
+                        fetchMessages(); // Refresh messages after sending new message
+                        $('#message').val(''); // Clear input field after sending
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error sending message:', error);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>
