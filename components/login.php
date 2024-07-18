@@ -16,10 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['email'] = $email;
         
         if ($role == "admin") {
-            header("location: /chat/components/admin.php");
+            header("location: /chat-app/components/admin.php");
             exit();
         } else if ($role == "customer") {
-            header("location: /chat/components/contents.php");
+            header("location: /chat-app/components/contents.php");
             $val='success';
                         exit();
         }
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
               H-chat
             </h2>
             <p class="text-sm mt-6 text-gray-800">Chat with anyone ,anywhere ,anytime.</p>
-            <p class="text-sm mt-12 text-gray-800">Don't have an account <a href="/chat/components/register.php" class="text-blue-600 font-semibold hover:underline ml-1">Register here</a></p>
+            <p class="text-sm mt-12 text-gray-800">Don't have an account <a href="chat-app/components/register.php" class="text-blue-600 font-semibold hover:underline ml-1">Register here</a></p>
           </div>
 
           <form action="" method="post" class="max-w-md md:ml-auto w-full">
